@@ -1,0 +1,33 @@
+.elevator-floor {
+  width: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.elevator-level {
+  margin: 20px 0;
+  height: 40px;
+  display: flex;
+}
+
+.elevator-queues > div {
+  margin: 0 10px;
+}
+
+.elevator-queues {
+  justify-content: center;
+}
+
+.floor-queued {
+  background-color: beige;
+}
+
+.floor-column {
+  width: 100px;
+}
+
+.floor-current {
+  border: 2px solid rgba(235, 0, 0, 0.3);
+}
