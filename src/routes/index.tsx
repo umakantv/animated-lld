@@ -11,6 +11,7 @@ const AppRouter = () => {
           element={
             <div>
               <h2>Home</h2>
+              <a href="/elevator">Elevator</a>
             </div>
           }
         />
