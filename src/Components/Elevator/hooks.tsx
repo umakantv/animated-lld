@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Elevator } from "./Elevator";
 import { ElevatorData, ELEVATOR_STATE_CHANGE } from "./types";
 
@@ -13,7 +13,7 @@ export function useElevatorState(elevator: Elevator) {
       console.log("Elevator State", data);
       setElevatorState(data.newState);
     });
-  }, []);
+  }, [elevator]);
 
   return {
     elevatorState,

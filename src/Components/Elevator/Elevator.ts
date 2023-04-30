@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import {
   ElevatorAction,
   ElevatorCommandType,
+  ElevatorData,
   ElevatorDirection,
   ElevatorState,
   ELEVATOR_STATE_CHANGE,
@@ -219,7 +220,7 @@ export class Elevator extends EventEmitter {
     };
   }
 
-  public getState() {
+  public getState(): ElevatorData {
     return {
       ...this.getCurrentState(),
       downward: [...this.downward],

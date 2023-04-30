@@ -20,7 +20,7 @@ const AppRouter = () => {
           element={
             <div>
               <h2>Elevator</h2>
-              <ElevatorDemo floors={5} />
+              <ElevatorDemo />
             </div>
           }
         />

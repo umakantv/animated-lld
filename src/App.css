@@ -1,3 +1,26 @@
+body {
+  --black: #000000;
+  --ash-black: #222;
+  --white: #fafafa;
+  --sky: #00ccff;
+  --green: #22dddd;
+  --blue: #1300ff;
+  --dusk: #6600ff;
+  --purple: #9900ff;
+  --pink: #ff0066;
+  --red: #fe0222;
+  --orange: #fd7702;
+  --yellow: #ffbb00;
+
+  --background: var(--white);
+  --accent: var(--red);
+
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  overflow: hidden;
+}
+
 .App {
   text-align: center;
 }
