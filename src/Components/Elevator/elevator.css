@@ -12,9 +12,8 @@
 }
 
 .elevator-box {
-  width: 35px;
+  width: 70px;
   height: 70px;
-  border: 3px solid var(--accent);
   pointer-events: none;
 }
 
@@ -59,4 +58,39 @@
 
 .elevator-floor-button.highlight {
   border-color: #1976d2 !important;
+}
+
+.elevator-demo div.elevator-action {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  overflow: hidden;
+  transition: color 1s;
+  border: 1px solid #1976d2;
+  cursor: pointer;
+  color: #1976d2;
+}
+
+.elevator-demo div.elevator-action:hover {
+  color: #fff;
+}
+
+.elevator-demo div.elevator-action::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -20px;
+  z-index: -1;
+  width: 150%;
+  height: 100%;
+  background-color: #1976d2;
+  transform: scaleX(0) skewX(35deg);
+  transform-origin: left;
+  transition: transform 1s;
+}
+
+.elevator-demo div.elevator-action:hover::before {
+  transform: scaleX(1) skewX(35deg);
 }

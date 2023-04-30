@@ -16,7 +16,7 @@ function ElevatorControls() {
   const floors = elevator.floors;
   let levels = new Array(floors).fill(0);
 
-  const { floor: currentFloor, downward, upward } = elevatorState;
+  const { requests } = elevatorState;
 
   return (
     <div className="row elevator-queues">
@@ -31,8 +31,9 @@ function ElevatorControls() {
       >
         {levels.map((_, i) => {
           let floorIndex = floors - i - 1;
-          let downwardHighlight = downward[floorIndex];
-          let upwardHighlight = upward[floorIndex];
+          let downwardHighlight = requests[floorIndex].goDown;
+          let upwardHighlight = requests[floorIndex].goUp;
+          let dropHighlight = requests[floorIndex].drop;
 
           return (
             <TimelineItem
@@ -42,25 +43,21 @@ function ElevatorControls() {
             >
               {/* Floor */}
               <TimelineSeparator>
-                <TimelineDot>
-                  <div className="floor-number">{floorIndex}</div>
-                </TimelineDot>
-                <TimelineConnector />
-              </TimelineSeparator>
-              <TimelineContent>
-                {/* <div
+                <TimelineDot
+                  color={dropHighlight ? "primary" : undefined}
+                  variant="outlined"
                   onClick={() => {
                     elevator.addCommand({
                       type: ElevatorCommandType.GO_TO_FLOOR,
                       floor: floorIndex,
                     });
                   }}
-                  className={`floor-column elevator-floor ${
-                    downwardHighlight ? "floor-queued" : ""
-                  }  ${floorIndex === currentFloor ? "floor-current" : ""}`}
                 >
-                  <span>Floor {floorIndex}</span>
-                </div> */}
+                  <div className="floor-number">{floorIndex}</div>
+                </TimelineDot>
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent>
                 <div className="floor-column">
                   {floorIndex < floors - 1 && (
                     <IconButton
@@ -69,7 +66,7 @@ function ElevatorControls() {
                       }`}
                       onClick={() => {
                         elevator.addCommand({
-                          type: ElevatorCommandType.PICK_UP,
+                          type: ElevatorCommandType.GO_UP,
                           floor: floorIndex,
                         });
                       }}
@@ -86,7 +83,7 @@ function ElevatorControls() {
                       }`}
                       onClick={() => {
                         elevator.addCommand({
-                          type: ElevatorCommandType.PICK_DOWN,
+                          type: ElevatorCommandType.GO_DOWN,
                           floor: floorIndex,
                         });
                       }}

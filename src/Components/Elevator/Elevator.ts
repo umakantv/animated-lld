@@ -6,6 +6,7 @@ import {
   ElevatorDirection,
   ElevatorState,
   ELEVATOR_STATE_CHANGE,
+  FloorRequest,
 } from "./types";
 
 export class Elevator extends EventEmitter {
@@ -26,18 +27,11 @@ export class Elevator extends EventEmitter {
   private currentDirection: ElevatorDirection;
 
   /**
-   * Downward is a list of floors storing boolean values.
-   * While moving downwards, the elevator will stop
-   * at a floor if the floor index is true
-   */
-  protected downward: Array<boolean>;
-
-  /**
    * Upward is a list of floors storing boolean values.
    * While moving upwards, the elevator will stop
    * at a floor if the floor index is true
    */
-  protected upward: Array<boolean>;
+  protected requests: Array<FloorRequest>;
 
   /**
    *
@@ -51,8 +45,14 @@ export class Elevator extends EventEmitter {
     this.currentFloor = 0;
     this.currentDirection = ElevatorDirection.UP;
 
-    this.downward = new Array<boolean>(floors).fill(false);
-    this.upward = new Array<boolean>(floors).fill(false);
+    this.requests = new Array(floors);
+    for (let i = 0; i < this.requests.length; i++) {
+      this.requests[i] = {
+        goUp: false,
+        goDown: false,
+        drop: false,
+      };
+    }
   }
 
   /**
@@ -71,9 +71,7 @@ export class Elevator extends EventEmitter {
   /**
    * Updates downward or upward for a given command
    */
-  addCommand(command: ElevatorAction) {
-    let currentDirection = this.currentDirection;
-
+  public addCommand(command: ElevatorAction) {
     const previousState = this.getState();
 
     let { floor, type } = command;
@@ -86,29 +84,22 @@ export class Elevator extends EventEmitter {
       throw new Error("Floor must be 0 - " + (this.floors - 1));
     }
 
-    if (type === ElevatorCommandType.PICK_DOWN) {
+    if (type === ElevatorCommandType.GO_DOWN) {
       // pick request for going down
-      this.downward[floor] = true;
-    } else if (type === ElevatorCommandType.PICK_UP) {
+      this.requests[floor].goDown = true;
+    } else if (type === ElevatorCommandType.GO_UP) {
       // pick request for going up
-      this.upward[floor] = true;
+      this.requests[floor].goUp = true;
     } else {
       // drop request
       // it can change either downward or upward depending on the current floor
       let inDirection = this.getCommandDirection(floor);
 
-      if (
-        inDirection === ElevatorDirection.DOWN ||
-        (inDirection === ElevatorDirection.IDLE &&
-          currentDirection === ElevatorDirection.DOWN)
-      ) {
-        this.downward[floor] = true;
-      } else if (
-        inDirection === ElevatorDirection.UP ||
-        (inDirection === ElevatorDirection.IDLE &&
-          currentDirection === ElevatorDirection.UP)
-      ) {
-        this.upward[floor] = true;
+      if (inDirection === ElevatorDirection.IDLE) {
+        // No need to do anything
+        // Open door maybe
+      } else {
+        this.requests[floor].drop = true;
       }
     }
 
@@ -127,42 +118,75 @@ export class Elevator extends EventEmitter {
     direction: ElevatorDirection,
     fromFloor: number
   ) {
+    // If elevator is going down - then we check from current to 0
+    // then from 0 to top for going up
     if (
       direction === ElevatorDirection.DOWN ||
       direction === ElevatorDirection.IDLE
     ) {
       for (let floor = fromFloor - 1; floor >= 0; floor--) {
-        if (this.downward[floor] === true) {
-          return floor;
+        if (this.requests[floor].goDown === true) {
+          return { direction: ElevatorDirection.DOWN, floor };
+        }
+
+        if (this.requests[floor].drop === true) {
+          return { direction: ElevatorDirection.DOWN, floor };
+        }
+      }
+      for (let floor = 0; floor < this.floors; floor++) {
+        if (this.requests[floor].goUp === true) {
+          return { direction: ElevatorDirection.UP, floor };
+        }
+        if (this.requests[floor].drop === true) {
+          return { direction: ElevatorDirection.UP, floor };
         }
       }
     }
 
-    for (let floor = fromFloor + 1; floor < this.floors; floor++) {
-      if (this.upward[floor] === true) {
-        return floor;
+    // If elevator is going up - then we check from current + 1 to top
+    // then we check from top to 0
+    if (
+      direction === ElevatorDirection.UP ||
+      direction === ElevatorDirection.IDLE
+    ) {
+      for (let floor = fromFloor + 1; floor < this.floors; floor++) {
+        if (this.requests[floor].goUp === true) {
+          return { direction: ElevatorDirection.UP, floor };
+        }
+
+        if (this.requests[floor].drop === true) {
+          return { direction: ElevatorDirection.UP, floor };
+        }
+      }
+
+      for (let floor = this.floors - 1; floor >= 0; floor--) {
+        if (this.requests[floor].goDown === true) {
+          return { direction: ElevatorDirection.DOWN, floor };
+        }
+
+        if (this.requests[floor].drop === true) {
+          return { direction: ElevatorDirection.DOWN, floor };
+        }
       }
     }
 
-    return -1;
+    return { direction: ElevatorDirection.IDLE, floor: -1 };
   }
 
   /**
    * Calculates the next state - direction and floor that elevator should go to
    */
-  public getNextStep(): ElevatorState {
-    let nextFloor = this.nextFloorInDirection(
-      this.currentDirection,
-      this.currentFloor
-    );
+  public getNextRequest(): ElevatorState {
+    let { direction: nextDirection, floor: nextFloor } =
+      this.nextFloorInDirection(this.currentDirection, this.currentFloor);
 
+    // No next step
     if (nextFloor === -1) {
       return {
         direction: ElevatorDirection.IDLE,
         floor: this.currentFloor,
       };
     }
-    let nextDirection = this.getCommandDirection(nextFloor);
 
     return {
       direction: nextDirection,
@@ -185,7 +209,7 @@ export class Elevator extends EventEmitter {
    * Then updates the direction but not the floor
    */
   public goToNextStep() {
-    let nextState = this.getNextStep();
+    let nextState = this.getNextRequest();
 
     const previousState = this.getState();
 
@@ -194,12 +218,16 @@ export class Elevator extends EventEmitter {
 
     // Mark the command complete
     if (this.currentDirection === ElevatorDirection.DOWN) {
-      this.downward[this.currentFloor] = false;
+      this.requests[this.currentFloor].goDown = false;
+      // completed both picking to go down or dropping
+      this.requests[this.currentFloor].drop = false;
     } else {
-      this.upward[this.currentFloor] = false;
+      this.requests[this.currentFloor].goUp = false;
+      // completed both picking to go up or dropping
+      this.requests[this.currentFloor].drop = false;
     }
 
-    nextState = this.getNextStep();
+    nextState = this.getNextRequest();
     this.currentDirection = nextState.direction;
 
     const newState = this.getState();
@@ -211,20 +239,20 @@ export class Elevator extends EventEmitter {
   }
 
   /**
-   * Get downward and upward
+   * Get all requests
    */
-  public getStations() {
-    return {
-      downward: this.downward,
-      upward: this.upward,
-    };
+  public getRequests() {
+    return this.requests;
   }
 
+  /**
+   * Returns the current elevator state
+   * It's a combination of getCurrentState and getStations
+   */
   public getState(): ElevatorData {
     return {
       ...this.getCurrentState(),
-      downward: [...this.downward],
-      upward: [...this.upward],
+      requests: [...this.requests],
     };
   }
 }
