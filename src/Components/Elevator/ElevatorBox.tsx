@@ -15,7 +15,7 @@ function ElevatorBox() {
         animate={{ y: -10 - currentFloor * 80 }}
         transition={{ type: "just" }}
       >
-        <img src={elevator} style={{ width: "100%" }} />
+        <img src={elevator} style={{ width: "100%" }} alt="elevator" />
       </motion.div>
     </div>
   );
