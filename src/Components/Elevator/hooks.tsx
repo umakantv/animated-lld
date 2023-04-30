@@ -4,7 +4,7 @@ import { ElevatorData, ELEVATOR_STATE_CHANGE } from "./types";
 
 export function useElevatorState(elevator: Elevator) {
   const [elevatorState, setElevatorState] = useState<ElevatorData>({
-    ...elevator.getStations(),
+    requests: elevator.getRequests(),
     ...elevator.getCurrentState(),
   });
 

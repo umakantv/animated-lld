@@ -17,16 +17,16 @@ const ElevatorContainer = ({ floors }: { floors: number }) => {
 
   console.log(elevatorState);
 
-  // useEffect(() => {
-  //   let interval = setInterval(() => {
-  //     console.log(elevator.getNextStep());
-  //     elevator.goToNextStep();
-  //   }, 2000);
+  useEffect(() => {
+    let interval = setInterval(() => {
+      // console.log(elevator.getNextStep());
+      elevator.goToNextStep();
+    }, 2000);
 
-  //   return () => {
-  //     clearInterval(interval);
-  //   };
-  // }, []);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [elevator]);
 
   return (
     <ElevatorContext.Provider
@@ -35,15 +35,16 @@ const ElevatorContainer = ({ floors }: { floors: number }) => {
         elevatorState,
       }}
     >
-      <div>
-        <button
+      <div className="elevator-demo">
+        <div
+          className="elevator-action"
           onClick={() => {
-            console.log(elevator.getNextStep());
+            console.log(elevator.getNextRequest());
             elevator.goToNextStep();
           }}
         >
           Go to Next Step
-        </button>{" "}
+        </div>{" "}
         <br />
         <div className="elevator-playground">
           <ElevatorBox />

@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import ElevatorContext from "./context";
 import { motion } from "framer-motion";
+import elevator from "./elevator.png";
 
 function ElevatorBox() {
   const { elevatorState } = useContext(ElevatorContext);
@@ -11,9 +12,11 @@ function ElevatorBox() {
     <div className="elevator-box-container">
       <motion.div
         className="elevator-box"
-        animate={{ y: -currentFloor * 100 }}
+        animate={{ y: -10 - currentFloor * 80 }}
         transition={{ type: "just" }}
-      />
+      >
+        <img src={elevator} style={{ width: "100%" }} />
+      </motion.div>
     </div>
   );
 }
