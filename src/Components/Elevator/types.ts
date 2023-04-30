@@ -5,8 +5,8 @@ export enum ElevatorDirection {
 }
 
 export enum ElevatorCommandType {
-  PICK_DOWN = "PICK_DOWN",
-  PICK_UP = "PICK_UP",
+  GO_DOWN = "GO_DOWN",
+  GO_UP = "GO_UP",
   GO_TO_FLOOR = "GO_TO_FLOOR",
 }
 
@@ -21,6 +21,12 @@ export type ElevatorAction = {
   floor: number;
 };
 
+export type FloorRequest = {
+  goUp: boolean;
+  goDown: boolean;
+  drop: boolean;
+};
+
 export type ElevatorState = {
   direction: ElevatorDirection;
   floor: number;
@@ -29,8 +35,7 @@ export type ElevatorState = {
 export type ElevatorData = {
   direction: ElevatorDirection;
   floor: number;
-  downward: Array<boolean>;
-  upward: Array<boolean>;
+  requests: Array<FloorRequest>;
 };
 
 export const ELEVATOR_STATE_CHANGE = "ELEVATOR_STATE_CHANGE";
