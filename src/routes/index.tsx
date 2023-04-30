@@ -1,17 +1,17 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import ElevatorDemo from "../Pages/Elevator";
 
 const AppRouter = () => {
   return (
-    <Router>
+    <Router basename="/animated-lld">
       <Routes>
         <Route
           path="/"
           element={
             <div>
               <h2>Home</h2>
-              <a href="/elevator">Elevator</a>
+              <Link to="/elevator">Elevator</Link>
             </div>
           }
         />
